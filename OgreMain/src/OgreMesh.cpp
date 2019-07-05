@@ -76,6 +76,7 @@ namespace Ogre {
     {
         // have to call this here reather than in Resource destructor
         // since calling virtual methods in base destructors causes crash
+        unloadImpl();
         unload();
     }
     //-----------------------------------------------------------------------

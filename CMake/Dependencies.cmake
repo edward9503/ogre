@@ -149,6 +149,7 @@ if(OGRE_BUILD_DEPENDENCIES AND NOT EXISTS ${OGREDEPS_PATH})
     execute_process(COMMAND ${CMAKE_COMMAND}
         -E tar xf pugixml-1.10.tar.gz WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
     execute_process(COMMAND ${BUILD_COMMAND_COMMON}
+        -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE # this will be linked into a shared lib
         ${PROJECT_BINARY_DIR}/pugixml-1.10
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/pugixml-1.10)
     execute_process(COMMAND ${CMAKE_COMMAND}

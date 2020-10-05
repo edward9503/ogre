@@ -164,8 +164,8 @@ namespace Ogre {
 
         // Do we know how many shared params there are yet? Or if there are any blocks defined?
         GLSLProgramManager::getSingleton().extractUniformsFromProgram(
-            mGLProgramHandle, params, mGLUniformReferences, mGLAtomicCounterReferences,
-            mGLUniformBufferReferences, mSharedParamsBufferMap, mGLCounterBufferReferences);
+            mGLProgramHandle, params, mGLUniformReferences, mGLAtomicCounterReferences, mSharedParamsBufferMap,
+            mGLCounterBufferReferences);
 
         mUniformRefsBuilt = true;
     }
@@ -367,58 +367,6 @@ namespace Ogre {
             } // fromProgType == currentUniform->mSourceProgType
 
         } // End for
-    }
-
-
-    void GLSLMonolithicProgram::updateUniformBlocks(GpuProgramParametersSharedPtr params,
-                                                    uint16 mask, GpuProgramType fromProgType)
-    {
-        // Iterate through the list of uniform buffers and update them as needed
-        GLUniformBufferIterator currentBuffer = mGLUniformBufferReferences.begin();
-        GLUniformBufferIterator endBuffer = mGLUniformBufferReferences.end();
-
-        const GpuProgramParameters::GpuSharedParamUsageList& sharedParams = params->getSharedParameters();
-
-        GpuProgramParameters::GpuSharedParamUsageList::const_iterator it, end = sharedParams.end();
-        for (it = sharedParams.begin(); it != end; ++it)
-        {
-            for (;currentBuffer != endBuffer; ++currentBuffer)
-            {
-                GL3PlusHardwareUniformBuffer* hwGlBuffer = static_cast<GL3PlusHardwareUniformBuffer*>(currentBuffer->get());
-                GpuSharedParametersPtr paramsPtr = it->getSharedParams();
-
-                // Block name is stored in mSharedParams->mName of GpuSharedParamUsageList items
-                GLint UniformTransform;
-                OGRE_CHECK_GL_ERROR(UniformTransform = glGetUniformBlockIndex(mGLProgramHandle, it->getName().c_str()));
-                OGRE_CHECK_GL_ERROR(glUniformBlockBinding(mGLProgramHandle, UniformTransform, hwGlBuffer->getGLBufferBinding()));
-
-                hwGlBuffer->writeData(0, hwGlBuffer->getSizeInBytes(), &paramsPtr->getFloatConstantList().front());
-            }
-        }
-    }
-
-
-    void GLSLMonolithicProgram::updatePassIterationUniforms(GpuProgramParametersSharedPtr params)
-    {
-        if (params->hasPassIterationNumber())
-        {
-            size_t index = params->getPassIterationNumberIndex();
-
-            GLUniformReferenceIterator currentUniform = mGLUniformReferences.begin();
-            GLUniformReferenceIterator endUniform = mGLUniformReferences.end();
-
-            // Need to find the uniform that matches the multi pass entry
-            for (;currentUniform != endUniform; ++currentUniform)
-            {
-                // Get the index in the parameter real list
-                if (index == currentUniform->mConstantDef->physicalIndex)
-                {
-                    OGRE_CHECK_GL_ERROR(glUniform1fv(currentUniform->mLocation, 1, params->getFloatPointer(index)));
-                    // There will only be one multipass entry
-                    return;
-                }
-            }
-        }
     }
 
 } // namespace Ogre
